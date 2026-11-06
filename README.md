@@ -1,4 +1,4 @@
-# PH 621 (Classical Mechancis) Computational Final Project
+# Lagrange Point Analysis
 This project contains an exploration of the restricted three body probelm wherein the motion of a small "massless test particle" is explored. Specifically, this project is focused on an exploration of the Lagrange points. 
 
 The Lagrange points are points of equillibrium for small mass object under the graviational influence of two larger bodies. Under most conditions, the restricted three body problem is a chaotic system, but given particular starting conditions, it is possible for the smaller body to remain in an equillibrium point relative to the position of the two larger bodies.
@@ -9,7 +9,7 @@ The Lagrange points are points of equillibrium for small mass object under the g
 * Simulate dynamics of a small mass placed in each Lagrange point affected by a small perturbation
 
 ## Identification of the Lagrange Points
-The procedure for finding the Lagrange points is fairly straightforward. The following will replicate the derivaiton of the points as conducted by Neil J. Cornish in [^1].
+The procedure for finding the Lagrange points is fairly straightforward. The following will replicate the derivaiton of the points as conducted by Neil J. Cornish in [1].
 
 We seek solutions which maintain a fixed distance between the three bodies. If $M_1$ and $M_2$ are the two larger masses, and $\vec{r_1}$ and $\vec{r_2}$ are the position vectors of the respective masses, then the total force exerted on a third mass $m$ at a position $\vec{r}$ will be
 
@@ -36,7 +36,7 @@ $$
 With $U$ being the gravitational potential ($m$ can be set to unity without a loss of generality), 
 
 $$
-U = -G(\frac{M_1}{r_1}+\frac{M_2}{r_2})
+U = -G \left( \frac{M_1}{r_1}+\frac{M_2}{r_2} \right)
 .$$
 
 The velocity dependant terms in the potential do not effect the positions of the equillibrium points, but are key in understanding the stability of motion about the equillibrium points.
@@ -88,7 +88,28 @@ The accuracy of these approximations depends on the mass ratio $\frac{\beta}{\al
 ![Mass ratio accuracy](plots/mass_ratio_accuracy.png) <br>
 **Figure 3**
 
-To find the fourth and fifth Lagrange points, we must take a different approach. These points are found where the centrifugal force is balanced with the gravitional force from each of the bodies. **CONTINUE WITH L4 and L5**
+To find the fourth and fifth Lagrange points, we must take a different approach. These points are found where the centrifugal force is balanced with the gravitional force from each of the bodies. To do this, we can resolve the force into parallel and perpecdicular components relative to $\vec{r}$. The perpendicular component yields
+
+$$
+F_{\Omega}^{\perp}=\alpha \beta y \Omega^2 R^3 \left(\frac{1}{((x-\beta R)^2 + y^2)^{3/2}}-\frac{1}{((x+\alpha R)^2 + y^2)^{3/2}}\right).
+$$
+
+Setting this to 0 for non-zero $y$ tells us that the distance between the test points and each mass must be equal. Using this fact, the parrallel component of the force becomes
+
+$$
+F_{Ω}^\parallel=\Omega^2\frac{x^2+y^2}{R}\left(\frac{1}{R^3}-\frac{1}{((x-\beta R)^2 + y^2)^{3/2}}\right),
+$$
+
+which, when set equal to 0 gives that the distance that the test points must be a distance R from each mass. This means that the location of $L4$ and $L5$ are given by the tip of an equillateral triangle of side length $R$ with the other two points being centered on the COM of the larger masses.
+
+$$
+L4: \begin{pmatrix} \left(\frac{R}{2} (\beta-\alpha)\right) \\ \frac{\sqrt{3}}{2}R \end{pmatrix}
+$$
+$$
+L4: \begin{pmatrix} \left(\frac{R}{2} (\beta-\alpha)\right) \\ -\frac{\sqrt{3}}{2}R \end{pmatrix}
+$$
+
+Note that $L4$ and $L5$ are exact, not subject to the same approximation used to find the first three Lagrange points.
 
 ## Stability of the Lagrange Points
 TODO
@@ -96,44 +117,19 @@ TODO
 ## Dynamics Near the Lagrange Points
 TODO
 
+Simulations in this paper made use of the REBOUND N-body code [2]. The simulations were integrated using IAS15, a 15th order Gauss-Radau integrator [3]. 
 
-Sources: <br>
-[^1] https://web.archive.org/web/20150907090116/http://www.physics.montana.edu/faculty/cornish/lagrange.pdf
+## Sources:
+[1]: N.J Cornish, *The Lagrange Points*, https://science.nasa.gov/wp-content/uploads/2023/07/3322_lagrange.pdf
 
-Simulations in this paper made use of the REBOUND N-body code \citep{rebound}. The simulations were integrated using IAS15, a 15th order Gauss-Radau integrator \citep{reboundias15}. 
+[2]: H. Rein and S.-F. Liu, *REBOUND: an open-source multi-purpose N-body code for collisional dynamics* A&A, 537 (2012) A128, https://doi.org/10.1051/0004-6361/201118085
 
+[3]: H. Rein, D.S. Spiegel, *ias15: a fast, adaptive, high-order integrator for gravitational dynamics, accurate to machine precision over a billion orbits*, Monthly Notices of the Royal Astronomical Society, Volume 446, Issue 2, 11 January 2015, Pages 1424–1437, https://doi.org/10.1093/mnras/stu2164
 
-@ARTICLE{rebound,
-       author = {{Rein}, H. and {Liu}, S. -F.},
-        title = "{REBOUND: an open-source multi-purpose N-body code for collisional dynamics}",
-      journal = {\aap},
-     keywords = {methods: numerical, planets and satellites: rings, protoplanetary disks, Astrophysics - Earth and Planetary Astrophysics, Astrophysics - Instrumentation and Methods for Astrophysics, Mathematics - Dynamical Systems, Physics - Computational Physics},
-         year = 2012,
-        month = jan,
-       volume = {537},
-          eid = {A128},
-        pages = {A128},
-          doi = {10.1051/0004-6361/201118085},
-archivePrefix = {arXiv},
-       eprint = {1110.4876},
- primaryClass = {astro-ph.EP},
-       adsurl = {https://ui.adsabs.harvard.edu/abs/2012A&A...537A.128R},
-      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
-}
-@ARTICLE{reboundias15,
-       author = {{Rein}, Hanno and {Spiegel}, David S.},
-        title = "{IAS15: a fast, adaptive, high-order integrator for gravitational dynamics, accurate to machine precision over a billion orbits}",
-      journal = {\mnras},
-     keywords = {gravitation, methods: numerical, planets and satellites: dynamical evolution and stability, Astrophysics - Earth and Planetary Astrophysics, Astrophysics - Instrumentation and Methods for Astrophysics, Astrophysics - Solar and Stellar Astrophysics, Mathematics - Numerical Analysis},
-         year = 2015,
-        month = jan,
-       volume = {446},
-       number = {2},
-        pages = {1424-1437},
-          doi = {10.1093/mnras/stu2164},
-archivePrefix = {arXiv},
-       eprint = {1409.4779},
- primaryClass = {astro-ph.EP},
-       adsurl = {https://ui.adsabs.harvard.edu/abs/2015MNRAS.446.1424R},
-      adsnote = {Provided by the SAO/NASA Astrophysics Data System}
-}
+[4]: Harris, C.R., Millman, K.J., van der Walt, S.J. et al. Array programming with NumPy. Nature 585, 357–362 (2020). DOI: 10.1038/s41586-020-2649-2.
+
+[5]: P. Virtanen, et al., (2020) SciPy 1.0: Fundamental Algorithms for Scientific Computing in Python. Nature Methods, 17(3), 261-272. 10.1038/s41592-019-0686-2.
+
+[6]: J. D. Hunter, "Matplotlib: A 2D Graphics Environment", Computing in Science & Engineering, vol. 9, no. 3, pp. 90-95, 2007
+
+[7]: Waskom, M. L., (2021). seaborn: statistical data visualization. Journal of Open Source Software, 6(60), 3021, https://doi.org/10.21105/joss.03021
