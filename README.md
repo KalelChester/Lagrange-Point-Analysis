@@ -41,7 +41,7 @@ U = -G \left( \frac{M_1}{r_1}+\frac{M_2}{r_2} \right)
 
 The velocity dependant terms in the potential do not effect the positions of the equillibrium points, but are key in understanding the stability of motion about the equillibrium points.
 
-The potential $U_\Omega$ is plotted with $M_1=10$, $M_2=1$, $R=10$, $G=1$, and $\vec{v}=0$ in Figure 1 with numerically calculated Lagrange points labled.
+The potential $U_\Omega$ is plotted with $M_1=10$, $M_2=1$, $R=10$, $G=1$, and $\vec{v}=0$ in figure 1 with numerically calculated Lagrange points labled.
 
 ![Heatmap of U_eff](plots/ueff.png) <br>
 **Figure 1**
@@ -60,7 +60,7 @@ Where
 $$ \alpha = \frac{M2}{M1+M2} $$
 $$ \beta = \frac{M1}{M1+M2} $$
 
-The force corresponding to the potential is plotted in Figure 2.
+The force corresponding to the potential is plotted in figure 2.
 
 ![Heatmap of F_eff](plots/feff.png) <br>
 **Figure 2**
@@ -83,7 +83,7 @@ $$
 L3: \begin{pmatrix} -R[1+\frac{5}{12}\alpha] \\ 0 \end{pmatrix}
 $$
 
-The accuracy of these approximations depends on the mass ratio $\frac{\beta}{\alpha}$. The relative magnitude of the error is shown in Figure 3,
+The accuracy of these approximations depends on the mass ratio $\frac{\beta}{\alpha}$. The relative magnitude of the error is shown in figure 3,
 
 ![Mass ratio accuracy](plots/mass_ratio_accuracy.png) <br>
 **Figure 3**
@@ -112,12 +112,24 @@ $$
 Note that $L4$ and $L5$ are exact, not subject to the same approximation used to find the first three Lagrange points.
 
 ## Stability of the Lagrange Points
-TODO
+Using the REBOUND N-body code[2] (integrated using IAS15, a 15th order Gauss-Radu integrator [3]) and the same parameters used to generate figures 1-3, we can simulate what happends if we place a test mass at each of the Lagrange points, and enact a small randomized perturbation $<0.1$ on their x and y positions.
 
-## Dynamics Near the Lagrange Points
-TODO
+Figures 4-8 are example gifs showing motion of test particles located at each of the Lagrange points after a small perturbation in their position.
 
-Simulations in this paper made use of the REBOUND N-body code [2]. The simulations were integrated using IAS15, a 15th order Gauss-Radau integrator [3]. 
+![Perturbed L1 Dynamics](plots/l1.gif) <br>
+**Figure 4**
+
+![Perturbed L2 Dynamics](plots/l2.gif) <br>
+**Figure 5**
+
+![Perturbed L3 Dynamics](plots/l3.gif) <br>
+**Figure 6**
+
+![Perturbed L4 Dynamics](plots/l4.gif) <br>
+**Figure 7**
+
+![Perturbed L5 Dynamics](plots/l5.gif) <br>
+**Figure 8**
 
 ## Sources:
 [1]: N.J Cornish, *The Lagrange Points*, https://science.nasa.gov/wp-content/uploads/2023/07/3322_lagrange.pdf
