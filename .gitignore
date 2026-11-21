@@ -1,4 +1,10 @@
 ldyn_gifs/
 .venv
 PH621_Computational_Final_Project.pdf
-writeup/
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+writeup/plots/

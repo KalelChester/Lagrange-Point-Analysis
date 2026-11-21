@@ -1,288 +1,286 @@
 # Lagrange Point Analysis
-This project contains an exploration of the restricted three body probelm wherein the motion of a small "massless test particle" is explored. Specifically, this project is focused on an exploration of the Lagrange points. 
 
-The Lagrange points are points of equillibrium for small mass object under the graviational influence of two larger bodies. Under most conditions, the restricted three body problem is a chaotic system, but given particular starting conditions, it is possible for the smaller body to remain in an equillibrium point relative to the position of the two larger bodies.
+An analytical and numerical exploration of the circular restricted three-body problem, focusing on the locations, linear stability, and perturbed $N$-body dynamics of the five Lagrange points ($L_1$–$L_5$).
 
-## Project Overview
-* Derive the position of the Lagrange points
-* Asses the stability of these points
-* Simulate dynamics of a small mass placed in each Lagrange point affected by a small perturbation
+## Overview
 
-## Identification of the Lagrange Points
-The procedure for finding the Lagrange points is fairly straightforward. The following will replicate the derivaiton of the points as conducted by Neil J. Cornish in [1].
+In the circular restricted three-body problem, a massless test particle moves under the gravitational influence of two massive primary bodies ($M_1$ and $M_2$) orbiting their common center of mass. While generic trajectories are chaotic, five stationary equilibrium configurations—the **Lagrange points**—exist in the co-rotating reference frame where gravitational and centrifugal forces balance exactly [1].
 
-We seek solutions which maintain a fixed distance between the three bodies. If $M_1$ and $M_2$ are the two larger masses, and $\vec{r_1}$ and $\vec{r_2}$ are the position vectors of the respective masses, then the total force exerted on a third mass $m$ at a position $\vec{r}$ will be
+Understanding these equilibria is central to astrodynamics and mission design. Despite the linear instability of the collinear points $L_1$ and $L_2$, spacecraft such as the **James Webb Space Telescope (JWST)** at Sun–Earth $L_2$ [2] and the **Solar and Heliospheric Observatory (SOHO)** at Sun–Earth $L_1$ [3] exploit bounded oscillatory eigenmodes to occupy halo and Lissajous orbits with minimal propellant. Meanwhile, above a critical mass ratio, the triangular points $L_4$ and $L_5$ (**Trojan points**) become linearly stable, enabling long-term natural trapping of minor bodies in systems like Sun–Earth and Earth–Moon [1].
 
-$$ 
-\vec{F}
-= -\frac{GM_1m}{|\vec{r}-\vec{r_1}|^3} (\vec{r}-\vec{r_1})
--\frac{GM_2m}{|\vec{r}-\vec{r_2}|^3} (\vec{r}-\vec{r_2})
-$$
+**Project Goals:**
+1. Derive the positions of all five Lagrange points analytically and benchmark small-mass-ratio approximations against exact numerical roots.
+2. Determine the linear stability and characteristic $e$-folding timescales of each equilibrium point.
+3. Validate the analytical stability boundaries through direct $N$-body simulations of perturbed test particles in `REBOUND`.
 
-To find stationary solutions, we adopt a co-rotating frame in which $M_1$ and $M_2$ are held fixed. This frame has the origin fixed at the center of mass of the two larger bodies and has an angular frequency $\Omega$ given by Kepler's law:
+### Contents
+- [Analytical Formulation](#analytical-formulation)
+  - [Effective Potential & Equations of Motion](#effective-potential--equations-of-motion)
+  - [Collinear Points ($L_1, L_2, L_3$)](#collinear-points-l_1-l_2-l_3)
+  - [Triangular Points ($L_4, L_5$)](#triangular-points-l_4-l_5)
+  - [Linear Stability Analysis](#linear-stability-analysis)
+- [Numerical Methodology](#numerical-methodology)
+- [Results & Discussion](#results--discussion)
+  - [Effective Potential, Force Field & Approximation Error](#effective-potential-force-field--approximation-error)
+  - [Perturbed $N$-Body Simulations](#perturbed-n-body-simulations)
+- [References](#references)
 
-$$
-\Omega^2 R^3 = G(M_1 + M_2)
-$$
+---
 
-The effective potential on $m$ is
+## Analytical Formulation
 
-$$
-U_\Omega = U - 
-\vec{v} \cdot (\vec{\Omega} \times \vec{r}) -
-\frac{1}{2}(\vec{\Omega} \times \vec{r})\cdot(\vec{\Omega} \times \vec{r})
-$$
+### Effective Potential & Equations of Motion
 
-With $U$ being the gravitational potential ($m$ can be set to unity without a loss of generality), 
+Following Cornish [1], consider two primary bodies of masses $M_1$ and $M_2$ at positions $\vec{r}_1$ and $\vec{r}_2$, separated by a fixed distance $R$. The gravitational force on a test mass $m$ at position $\vec{r}$ is
 
 $$
-U = -G \left( \frac{M_1}{r_1}+\frac{M_2}{r_2} \right)
-.$$
-
-The velocity dependant terms in the potential do not effect the positions of the equillibrium points, but are key in understanding the stability of motion about the equillibrium points.
-
-The potential $U_\Omega$ is plotted with $M_1=10$, $M_2=1$, $R=10$, $G=1$, and $\vec{v}=0$ in figure 1 with numerically calculated Lagrange points labled.
-
-![Heatmap of U_eff](plots/ueff.png) <br>
-**Figure 1**
-
-Taking the negative gradint of this potential, we get the force,
-
-$$
-\vec{F} = \Omega^2 \begin{pmatrix}
-x-\frac{\beta(x+\alpha R)R^3}{((x+\alpha R)^2 + y^2)^{3/2}} - \frac{\alpha(x-\beta R)R^3}{((x-\beta R)^2 + y^2)^{3/2}} \\
-y-\frac{\beta y R^3}{((x+\alpha R)^2 + y^2)^{3/2}} - \frac{\alpha y R^3}{((x-\beta R)^2 + y^2)^{3/2}}
-\end{pmatrix}
+\vec{F} = -\frac{GM_1 m}{|\vec{r} - \vec{r}_1|^3}(\vec{r} - \vec{r}_1) - \frac{GM_2 m}{|\vec{r} - \vec{r}_2|^3}(\vec{r} - \vec{r}_2).
 $$
 
-Where
-
-$$ \alpha = \frac{M2}{M1+M2} $$
-$$ \beta = \frac{M1}{M1+M2} $$
-
-The force corresponding to the potential is plotted in figure 2.
-
-![Heatmap of F_eff](plots/feff.png) <br>
-**Figure 2**
-
-Since the system is symmetric about the $x$-axis, the $y$ component of the force must vanish. To find the first three Lagrange points, we can set $y=0$ and use the change of coordinate $x=R(u+\beta)$. The desired 3 coordinates are the solutions to the three fifth-order equations
+Transforming into a co-rotating frame centered on the center of mass of $M_1$ and $M_2$ with constant angular frequency $\Omega$ given by Kepler's third law,
 
 $$
-u^2((1-s_1) + 3u + 3u^2 +u^3) = \alpha(s_0+2s_0 u + (1+ s_0 - s_1)u^2 +2u^3 +u^4)
+\Omega^2 R^3 = G(M_1 + M_2),
 $$
 
-where $s_0=\text{sign}(u)$ and $s_1=\text{sign}(u+1)$. The cases that give $L_1$, $L_2$, and $L_3$ have $(s_0, s_1)$ equal to (-1, 1), (1, 1), and (-1, -1) respectively. Each equation has only one real root to the quintic equation, which gives the Lagrange points. However, we are unable to find a general solution to these equations for arbitrary $\alpha$ so we take the approximation of $\alpha \ll 1$ which applies for relevant equations such as the Earth-Sun system $(\alpha \approx 10^{-6})$ and (less strongly) the Earth-Moon system $(\alpha \approx 10^{-2})$. To first order in $\alpha$ we find these first three Lagrange points to be positioned at:
+and setting $m = 1$ without loss of generality, the effective potential is
 
 $$
-L_1: \begin{pmatrix} R[1-(\frac{\alpha}{3})^{1/3}] \\ 0 \end{pmatrix}
-$$
-$$
-L_2: \begin{pmatrix} R[1+(\frac{\alpha}{3})^{1/3}] \\ 0 \end{pmatrix}
-$$
-$$
-L_3: \begin{pmatrix} -R[1+\frac{5}{12}\alpha] \\ 0 \end{pmatrix}
+U_\Omega = U - \vec{v} \cdot (\vec{\Omega} \times \vec{r}) - \frac{1}{2}(\vec{\Omega} \times \vec{r}) \cdot (\vec{\Omega} \times \vec{r}),
 $$
 
-The accuracy of these approximations depends on the mass ratio $\frac{\beta}{\alpha}$. The relative magnitude of the error is shown in figure 3,
-
-![Mass ratio accuracy](plots/mass_ratio_accuracy.png) <br>
-**Figure 3**
-
-To find the fourth and fifth Lagrange points, we must take a different approach. These points are found where the centrifugal force is balanced with the gravitional force from each of the bodies. To do this, we can resolve the force into parallel and perpecdicular components relative to $\vec{r}$. The perpendicular component yields
+where $\vec{v}$ is the test particle's velocity in the rotating frame and $U$ is the Newtonian gravitational potential:
 
 $$
-F_{\Omega}^{\perp}=\alpha \beta y \Omega^2 R^3 \left(\frac{1}{((x-\beta R)^2 + y^2)^{3/2}}-\frac{1}{((x+\alpha R)^2 + y^2)^{3/2}}\right).
+U = -G\left(\frac{M_1}{|\vec{r} - \vec{r}_1|} + \frac{M_2}{|\vec{r} - \vec{r}_2|}\right).
 $$
 
-Setting this to 0 for non-zero $y$ tells us that the distance between the test points and each mass must be equal. Using this fact, the parrallel component of the force becomes
+The velocity-dependent Coriolis term $-\vec{v} \cdot (\vec{\Omega} \times \vec{r})$ vanishes for stationary equilibria ($\vec{v} = \vec{0}$), so it does not affect the positions of the Lagrange points, though it governs their dynamical stability.
+
+Defining the dimensionless mass fractions
 
 $$
-F_{Ω}^\parallel=\Omega^2\frac{x^2+y^2}{R}\left(\frac{1}{R^3}-\frac{1}{((x-\beta R)^2 + y^2)^{3/2}}\right),
+\alpha = \frac{M_2}{M_1 + M_2}, \qquad \beta = \frac{M_1}{M_1 + M_2},
 $$
 
-which, when set equal to 0 gives that the distance that the test points must be a distance R from each mass. This means that the location of $L_4$ and $L_5$ are given by the tip of an equillateral triangle of side length $R$ with the other two points being centered on the COM of the larger masses.
+places the primaries on the $x$-axis at $(-\alpha R, 0)$ and $(\beta R, 0)$. Taking the negative gradient of the static part of $U_\Omega$ yields the effective force in the orbital plane:
 
 $$
-L_4: \begin{pmatrix} \left(\frac{R}{2} (\beta-\alpha)\right) \\ \frac{\sqrt{3}}{2}R \end{pmatrix}
-$$
-$$
-L_5: \begin{pmatrix} \left(\frac{R}{2} (\beta-\alpha)\right) \\ -\frac{\sqrt{3}}{2}R \end{pmatrix}
-$$
-
-Note that $L_4$ and $L_5$ are exact, not subject to the same approximation used to find the first three Lagrange points.
-
-## Stability of the Lagrange Points
-Now that we have found the 5 Lagrange points, the next step is to determine the stability of these points. While It is usually sufficient to look at the shape of the potential to find the stability of an equillibrium point, the fact that our potential is velocity dependant makes this methodology insufficient. Instead we must perform a linear stability analysis about each Lagrange point by linearizing the eqution of motion about each equillibrium point and solving for small perturbations. Writing
-
-$$ 
-x=x_i+\delta x, \hspace{.5cm}
-v_x = \delta v_x,
-$$
-$$ 
-y=y_i+\delta y, \hspace{.5cm}
-v_y = \delta v_y,
+\vec{F} = \Omega^2
+\begin{pmatrix}
+x - \dfrac{\beta(x + \alpha R)R^3}{\left((x + \alpha R)^2 + y^2\right)^{3/2}} - \dfrac{\alpha(x - \beta R)R^3}{\left((x - \beta R)^2 + y^2\right)^{3/2}} \\
+y - \dfrac{\beta y R^3}{\left((x + \alpha R)^2 + y^2\right)^{3/2}} - \dfrac{\alpha y R^3}{\left((x - \beta R)^2 + y^2\right)^{3/2}}
+\end{pmatrix}.
 $$
 
-Where $(x_i, y_i)$ is the position of the $i$-th Lagrange point, and $v_j$ is the $j$-th spatial velocity component of the test particle in the rotating frame $\Omega$. With this, the linearized equatinos of motion become 
+---
+
+### Collinear Points ($L_1, L_2, L_3$)
+
+By symmetry about the $x$-axis, $F_y = 0$ along $y = 0$. Substituting $x = R(u + \beta)$ into $F_x = 0$ reduces the equilibrium condition to three quintic polynomial equations [1]:
 
 $$
-\frac{d}{dt} 
+u^2\left((1 - s_1) + 3u + 3u^2 + u^3\right) = \alpha\left(s_0 + 2s_0 u + (1 + s_0 - s_1)u^2 + 2u^3 + u^4\right),
+$$
+
+where $s_0 = \operatorname{sign}(u)$ and $s_1 = \operatorname{sign}(u + 1)$. The sign pairs $(s_0, s_1) = (-1, 1)$, $(1, 1)$, and $(-1, -1)$ yield $L_1$, $L_2$, and $L_3$, respectively, each with a unique real root.
+
+Because no general closed-form solution exists for arbitrary $\alpha$, we expand in the astrophysically relevant limit $\alpha \ll 1$ (e.g., $\alpha \approx 10^{-6}$ for Sun–Earth, $\alpha \approx 10^{-2}$ for Earth–Moon). To leading order in $\alpha$ [1]:
+
+$$
+L_1: \begin{pmatrix} R\left[1 - \left(\dfrac{\alpha}{3}\right)^{1/3}\right] \\ 0 \end{pmatrix}, \qquad
+L_2: \begin{pmatrix} R\left[1 + \left(\dfrac{\alpha}{3}\right)^{1/3}\right] \\ 0 \end{pmatrix}, \qquad
+L_3: \begin{pmatrix} -R\left[1 + \dfrac{5}{12}\alpha\right] \\ 0 \end{pmatrix}.
+$$
+
+---
+
+### Triangular Points ($L_4, L_5$)
+
+For off-axis equilibria ($y \neq 0$), resolving the effective force perpendicular and parallel to $\vec{r}$ gives [1]:
+
+$$
+F_\Omega^\perp = \alpha \beta y \Omega^2 R^3 \left(\frac{1}{\left((x - \beta R)^2 + y^2\right)^{3/2}} - \frac{1}{\left((x + \alpha R)^2 + y^2\right)^{3/2}}\right),
+$$
+
+$$
+F_\Omega^\parallel = \Omega^2 \frac{x^2 + y^2}{R} \left(\frac{1}{R^3} - \frac{1}{\left((x - \beta R)^2 + y^2\right)^{3/2}}\right).
+$$
+
+Setting $F_\Omega^\perp = 0$ requires the test particle to be equidistant from $M_1$ and $M_2$; setting $F_\Omega^\parallel = 0$ fixes that distance to $R$. Thus $L_4$ and $L_5$ form equilateral triangles of side length $R$ with the two primaries:
+
+$$
+L_4: \begin{pmatrix} \dfrac{R}{2}(\beta - \alpha) \\ \dfrac{\sqrt{3}}{2}R \end{pmatrix}, \qquad
+L_5: \begin{pmatrix} \dfrac{R}{2}(\beta - \alpha) \\ -\dfrac{\sqrt{3}}{2}R \end{pmatrix}.
+$$
+
+Unlike the collinear approximations, these coordinates are **exact for all mass ratios**.
+
+---
+
+### Linear Stability Analysis
+
+Because $U_\Omega$ includes the velocity-dependent Coriolis term, static potential curvature alone cannot determine stability. Introducing small perturbations about an equilibrium point $(x_i, y_i)$,
+
+$$
+x = x_i + \delta x, \qquad y = y_i + \delta y, \qquad v_x = \delta v_x, \qquad v_y = \delta v_y,
+$$
+
+the linearized equations of motion for the state vector $\vec{\xi} = (\delta x, \delta y, \delta v_x, \delta v_y)^T$ are
+
+$$
+\frac{d}{dt}
 \begin{pmatrix} \delta x \\ \delta y \\ \delta v_x \\ \delta v_y \end{pmatrix}
-= \begin{pmatrix}
+=
+\begin{pmatrix}
 0 & 0 & 1 & 0 \\
 0 & 0 & 0 & 1 \\
-\frac{d^2 U_\Omega}{dx^2} & \frac{d^2 U_\Omega}{dxdy} & 0 & 2 \Omega \\
-\frac{d^2 U_\Omega}{dydx} & \frac{d^2 U_\Omega}{dy^2} & -2 \Omega & 0 \\
+-\dfrac{\partial^2 U_\Omega}{\partial x^2} & -\dfrac{\partial^2 U_\Omega}{\partial x \partial y} & 0 & 2\Omega \\
+-\dfrac{\partial^2 U_\Omega}{\partial y \partial x} & -\dfrac{\partial^2 U_\Omega}{\partial y^2} & -2\Omega & 0
 \end{pmatrix}
+\begin{pmatrix} \delta x \\ \delta y \\ \delta v_x \\ \delta v_y \end{pmatrix},
 $$
 
-In the following sections, the second derivatives will be evaluated at $\vec{r} = (x_i, y_i)$. 
-
-The general soluition for the perturbation $\xi (\delta x, \delta y, \delta v_x, \delta v_y )^T$ is a linear combination of eigenmodes:
+with all second partial derivatives evaluated at $(x_i, y_i)$. Writing the general solution as a superposition of eigenmodes $\vec{\xi}(t) = \sum_{k=1}^4 c_k e^{\lambda_k t}$ with $\lambda = \gamma + i\omega$, any eigenvalue with $\gamma = \operatorname{Re}(\lambda) > 0$ produces exponential instability characterized by the $e$-folding time
 
 $$
-\xi(t) = \sum^4_{k=1}c_ke^{\lambda_kt}.
+\tau = \frac{1}{\gamma}.
 $$
 
-Writing each eigenvalue as $\lambda = \gamma + i\omega$, the behavior is controlled by its real part $\gamma=\operatorname{Re}(\lambda)$. Because of this, any positive real component of $\lambda$ will result in unstable equillibrium points.
+If all eigenvalues are purely imaginary ($\gamma = 0$), the equilibrium is linearly stable ($\tau \to \infty$).
 
-To measure the instability of unstable equillibrium points we can calculate the $e$-folding time, $\tau$ which corresponds to the characteristic time required for a small intial displacement to grow by a factor of $e$.
-
-$$
-\tau=\frac{1}{\gamma}, \hspace{.5cm}\text{for } \gamma>0
-$$
-
-### Stability of $L_1$ and $L_2$
-
-The curvature of the effective potential near $L_1$ and $L_2$ shows that they are saddle points:
+#### Stability of $L_1$ and $L_2$
+For $\alpha \ll 1$, both points are saddle points of the static potential:
 
 $$
-\frac{d^2U_\Omega}{dx^2}=-9\Omega \hspace{5mm}
-\frac{d^2U_\Omega}{dy^2}=3\Omega
-$$
-$$
-\frac{d^2U_\Omega}{dxdy}=\frac{d^2U_\Omega}{dydx}=0
+\frac{\partial^2 U_\Omega}{\partial x^2} = -9\Omega^2, \qquad
+\frac{\partial^2 U_\Omega}{\partial y^2} = 3\Omega^2, \qquad
+\frac{\partial^2 U_\Omega}{\partial x \partial y} = \frac{\partial^2 U_\Omega}{\partial y \partial x} = 0.
 $$
 
-Calculating the eigenvalues of this system gives
+The resulting eigenvalues are
 
 $$
-\lambda=\pm \Omega \sqrt{1+2\sqrt{7}},\hspace{2mm} \pm i \Omega \sqrt{2\sqrt{7}-1}.
+\lambda = \pm \Omega \sqrt{1 + 2\sqrt{7}}, \qquad \pm i\Omega \sqrt{2\sqrt{7} - 1}.
 $$
 
-The existance of a real, positive eigenvalue means that these equillibrium points are unstable. The $e$-folding time for these points is about
+The positive real root makes $L_1$ and $L_2$ linearly unstable, with a Sun–Earth $e$-folding time of $\tau \approx \frac{2}{5\Omega} \approx 23\text{ days}$ [1]. Missions like **JWST** ($L_2$) [2] and **SOHO** ($L_1$) [3] inject into halo or Lissajous orbits associated with the purely imaginary eigenvalue pair so that initial excitation along the unstable mode is nearly zero, then apply periodic station-keeping burns (every few weeks for JWST [2]; ~90 days for SOHO [3]) to counter solar radiation pressure and planetary perturbations.
+
+#### Stability of $L_3$
+$L_3$ is also a saddle point, with curvatures to first order in $\alpha$:
 
 $$
-\tau \approx \frac{2}{5\Omega}=23 \text{ days.}
+\frac{\partial^2 U_\Omega}{\partial x^2} = -\frac{1}{4}(12 + 7\alpha)\Omega^2, \qquad
+\frac{\partial^2 U_\Omega}{\partial y^2} = \frac{7\alpha\Omega^2}{8}, \qquad
+\frac{\partial^2 U_\Omega}{\partial x \partial y} = \frac{\partial^2 U_\Omega}{\partial y \partial x} = 0.
 $$
 
-This means that a satellite placed exactly at one of these points will drift away within a few months if not corrected.
-
-However, there are still many projects that use these points by exploiting the purely imaginary eigenvalues of the system. While the positive real eigenvalue drives exponential divergence, the purely imaginary pair ($\pm i\Omega\sqrt{2\sqrt{7}-1}$) corresponds to bounded, oscillatory motion that, in the full three-dimensional system, gives rise to periodic and quasi-periodic trajectories known as halo and Lissajous orbits. Missions such as the James Webb Space Telescope (JWST) at $L_2$ [2] and the Solar and Heliospheric Observatory (SOHO) at $L_1$ [3] are injected directly into these halo orbits so that their initial displacement along the unstable eigenmode is nearly zero. Because real-world perturbations—such as solar radiation pressure and gravitational tugs from other planets—inevitably reintroduce a small component along the unstable direction, these spacecraft execute small, periodic station-keeping maneuvers (every few weeks for JWST [2] and roughly every 90 days for SOHO [3]) to zero out the growing unstable mode before it can pull them off course, allowing them to maintain their orbits for years with minimal propellant.
-
-### Stability of $L_3$
-
-$L_3$, like it's colinear counterparts, is also located at a addle point of the effective potential with curvature
+Its eigenvalues to first order in $\alpha$ are
 
 $$
-\frac{d^2U_\Omega}{dx^2}=-\frac{1}{4}(12+7\alpha)\Omega^2 \hspace{5mm}
-\frac{d^2U_\Omega}{dy^2}=\frac{7 \alpha \Omega^2}{8}
-$$
-$$
-\frac{d^2U_\Omega}{dxdy}=\frac{d^2U_\Omega}{dydx}=0
+\lambda = \pm \frac{i}{8}(8 + 7\alpha)\Omega, \qquad \pm \frac{1}{2}\sqrt{\frac{21\alpha}{2}}\,\Omega.
 $$
 
-The linearized evolution matrix eigenvalues to first order in $\alpha$ are
+$L_3$ is linearly unstable, though it diverges much more slowly than $L_1$ and $L_2$, with a Sun–Earth $e$-folding time of $\tau \approx 56.7\text{ years}$ [1].
+
+#### Stability of $L_4$ and $L_5$
+At the triangular points, the curvatures are
 
 $$
-\lambda = \pm \frac{i}{8}(8+7\alpha)\Omega, \hspace{2mm} \pm \frac{1}{2}\sqrt{\frac{21\alpha}{2}}\Omega
+\frac{\partial^2 U_\Omega}{\partial x^2} = -\frac{3}{4}\Omega^2, \qquad
+\frac{\partial^2 U_\Omega}{\partial y^2} = -\frac{9}{4}\Omega^2, \qquad
+\frac{\partial^2 U_\Omega}{\partial x \partial y} = \frac{\partial^2 U_\Omega}{\partial y \partial x} = \pm \frac{3\sqrt{3}}{4}\kappa\Omega^2,
 $$
 
-Once again, the existence of a real, positive eigenvalue means that this point is unstable. The $e$-folding time of this point is 
+where $\kappa = \frac{M_1 - M_2}{M_1 + M_2} = 1 - 2\alpha$. The eigenvalues are
 
 $$
-\tau \approx 56.7 \text{ years.}
+\lambda = \pm i\frac{\Omega}{2}\sqrt{2 \pm \sqrt{27\kappa^2 - 23}}.
 $$
 
-### Stability of L4 and L5
-
-The curvature of effective potential at L4 and L5 
+Linear stability requires all four eigenvalues to be purely imaginary, which holds if and only if $\kappa^2 > \frac{23}{27}$ and $\sqrt{27\kappa^2 - 23} \le 2$ [1]. The second inequality is always satisfied ($\kappa < 1$), while the first sets the critical mass-ratio threshold:
 
 $$
-\frac{d^2U_\Omega}{dx^2}=-\frac{3}{4}\Omega^2 \hspace{5mm}
-\frac{d^2U_\Omega}{dy^2}=-\frac{9}{4}\Omega^2
-$$
-$$
-\frac{d^2U_\Omega}{dxdy}=\frac{d^2U_\Omega}{dydx}=\frac{3\sqrt{3}}{4}(1-2\alpha)\Omega^2=\frac{3\sqrt{3}}{4}\kappa\Omega^2
+\frac{M_1}{M_2} \ge \frac{1}{2}\left(25 + 3\sqrt{69}\right) \approx 24.96.
 $$
 
-where $\kappa=\frac{M_1-M_2}{M_1+M_2}$. The eigenvalues of the linearized evolution matrix are
+When satisfied—as in both the Sun–Earth and Earth–Moon systems—the Coriolis force stabilizes motion about the potential maxima at $L_4$ and $L_5$, yielding stable Trojan orbits.
 
-$$
-\lambda = \pm i\frac{\Omega}{2}\sqrt{2\pm\sqrt{27\kappa^2-23}}
-$$
+---
 
-Since the points will be stable if the eigenvalues are purely imaginary, we get the stability conditions:
+## Numerical Methodology
 
-$$
-\kappa^2 > \frac{23}{27}, \text{  and  } 
-\sqrt{27\kappa^2-23} \leq2
-$$
+All numerical analysis and visualizations were implemented in Python using **NumPy** [6], **SciPy** [7], **Matplotlib** [8], **Seaborn** [9], and **REBOUND** [4].
 
-The second condition is always satisfied since $\kappa < 1$, while the first requires that 
+* **Potential, Force Fields & Root Finding:** A baseline dimensionless system was defined with $G = 1$, $M_1 = 10$, $M_2 = 1$ ($M_1/M_2 = 10$), $R = 10$, and $\vec{v} = \vec{0}$. Fields $U_\Omega(x, y)$ and $|\vec{F}| = |\nabla U_\Omega|$ were evaluated over $x \in [-16, 16]$, $y \in [-12, 12]$, and exact equilibrium coordinates were found by solving $\vec{F}(x, y) = \vec{0}$ with `scipy.optimize.fsolve` [7].
+* **Approximation Error Sweep:** To evaluate the $\alpha \ll 1$ collinear approximations, mass ratios were swept logarithmically across $\alpha/\beta \in [10^{-10}, 1)$, measuring the relative position error $\epsilon_i = \|\vec{r}_{i,\text{exact}} - \vec{r}_{i,\text{approx}}\| / \|\vec{r}_{i,\text{exact}}\|$.
+* **$N$-Body Perturbation Simulations:** Dynamical stability was tested in **REBOUND** [4] using **IAS15**, a 15th-order adaptive Gauss–Radau integrator accurate to machine precision over long orbital timescales [5]. Massless test particles were initialized at each numerical Lagrange point with circular co-rotating velocity $(v_x, v_y) = (-\Omega y_i, \Omega x_i)$ plus a small randomized Gaussian position perturbation ($\le 10^{-4}$ in dimensionless units). Simulations were integrated over $20{,}000$ steps ($\Delta t = 0.1$) and rotated by $-\Omega \Delta t$ per step to visualize co-rotating trajectories at both $M_1/M_2 = 10$ (all five points) and $M_1/M_2 = 25$ ($L_4$ and $L_5$).
 
-$$
-M_1 \geq \frac{1}{2}M_2(25+3\sqrt{69})
-$$
+---
 
-When this stability condition is met, the $L_4$ and $L_5$ points yeild stable orbits and are refered to as Trojan points. The mass ratios for both the Earth-Moon and Sun-Earth system satisfy these conditions.
+## Results & Discussion
 
-### Numeric Stability
+### Effective Potential, Force Field & Approximation Error
 
-Using the REBOUND N-body code [4] (integrated using IAS15, a 15th order Gauss-Radu integrator [5]) and the same parameters used to generate figures 1-3, we can simulate what happends if we place a test mass at each of the Lagrange points, and enact a small randomized perturbation $<1e-4$ on their x and y positions.
+For the baseline system ($G = 1$, $M_1 = 10$, $M_2 = 1$, $R = 10$), `fsolve` yields the exact equilibrium coordinates summarized below alongside their analytical stability properties:
 
-Figures 4-8 are example gifs showing motion of test particles located at each of the Lagrange points after a small perturbation in their position for a mass ratio $\frac{M_1}{M_2}=10$
+| Point | $x$ | $y$ | Linear Stability | Sun–Earth $\tau$ |
+| :--- | :---: | :---: | :--- | :--- |
+| **$L_1$** | $6.266$ | $0.000$ | Unstable (saddle) | $\approx 23\text{ days}$ |
+| **$L_2$** | $12.561$ | $0.000$ | Unstable (saddle) | $\approx 23\text{ days}$ |
+| **$L_3$** | $-10.378$ | $0.000$ | Unstable (saddle) | $\approx 56.7\text{ years}$ |
+| **$L_4$** | $4.091$ | $8.660$ | Stable if $M_1/M_2 \ge 24.96$ | Stable (Trojan) |
+| **$L_5$** | $4.091$ | $-8.660$ | Stable if $M_1/M_2 \ge 24.96$ | Stable (Trojan) |
 
-![Perturbed L1 Dynamics](plots/l1.gif) <br>
-**Figure 4**
+As expected, $L_1$, $L_2$, and $L_3$ lie at saddle points along the $x$-axis where $|\vec{F}| \to 0$, whereas $L_4$ and $L_5$ sit at local maxima of $U_\Omega$.
 
-![Perturbed L2 Dynamics](plots/l2.gif) <br>
-**Figure 5**
+![Heatmap of U_eff](plots/ueff.png)
+*Figure 1: Effective potential $U_\Omega(x, y)$ (clamped below at $-3$ for contrast) for $M_1 = 10$, $M_2 = 1$, $R = 10$, $G = 1$, and $\vec{v} = \vec{0}$, with numerically calculated Lagrange points labeled.*
 
-![Perturbed L3 Dynamics](plots/l3.gif) <br>
-**Figure 6**
+![Heatmap of F_eff](plots/feff.png)
+*Figure 2: Magnitude of the co-rotating effective force $|\vec{F}| = |\nabla U_\Omega|$, showing vanishing force at all five Lagrange points.*
 
-![Perturbed L4 Dynamics](plots/l4.gif) <br>
-**Figure 7**
+Comparing the first-order collinear approximations against `fsolve` roots shows smooth power-law convergence for $L_1$ and $L_2$ (falling below $10^{-3}$ relative error for $\alpha/\beta \lesssim 10^{-3}$, with a sign-crossing dip near $\alpha/\beta \approx 3 \times 10^{-3}$). The $L_3$ approximation converges even faster, reaching the floating-point floor ($\sim 10^{-16}$) for $\alpha/\beta \lesssim 10^{-5}$. Because the triangular coordinates are exact, $L_4$ and $L_5$ have zero analytical error across all mass ratios.
 
-![Perturbed L5 Dynamics](plots/l5.gif) <br>
-**Figure 8**
+![Mass ratio accuracy](plots/mass_ratio_accuracy.png)
+*Figure 3: Relative position error between the first-order collinear approximations and exact `fsolve` roots as a function of mass ratio $\alpha/\beta$.*
 
-We can test the stability criteria found for $L_4$ and $L_5$ by running additional simulations with a higher mass ratio of $\frac{M_1}{M_2}=25$, which just barely clears the stability requirement.
+---
 
-![Perturbed L4 Dynamics](plots/l4_heavy.gif) <br>
-**Figure 9**
+### Perturbed $N$-Body Simulations
 
-![Perturbed L5 Dynamics](plots/l5_heavy.gif) <br>
-**Figure 10**
+#### Unstable Regime ($M_1 / M_2 = 10$)
+Below the Trojan stability threshold ($M_1/M_2 < 24.96$), perturbed test particles at **all five** Lagrange points depart from equilibrium and enter chaotic trajectories in the co-rotating frame:
 
-As we can see, the particles remain stably in place for the duration of the simulation which is equivalent to more than 50,000 orbits of the larger bodies (years).
+| Perturbed $L_1$ | Perturbed $L_2$ |
+| :---: | :---: |
+| ![Perturbed L1 Dynamics](plots/l1.gif) | ![Perturbed L2 Dynamics](plots/l2.gif) |
 
-## Sources:
-[1]: N.J Cornish, *The Lagrange Points*, https://science.nasa.gov/wp-content/uploads/2023/07/3322_lagrange.pdf
+| Perturbed $L_3$ | Perturbed $L_4$ |
+| :---: | :---: |
+| ![Perturbed L3 Dynamics](plots/l3.gif) | ![Perturbed L4 Dynamics](plots/l4.gif) |
 
-[2]: J. Petersen, *L2 Station Keeping Maneuver Strategy for the James Webb Space Telescope* Preprint, https://ntrs.nasa.gov/api/citations/20190028877/downloads/20190028877.pdf
+| Perturbed $L_5$ |
+| :---: |
+| ![Perturbed L5 Dynamics](plots/l5.gif) |
 
-[3]: C.E Roberts, *Long Term Missions at the Sun-Earth Liberation Point L1: ACE, SOHO, and WIND*, AAS 11-485,https://ntrs.nasa.gov/api/citations/20110022484/downloads/20110022484.pdf 
+#### Stable Trojan Regime ($M_1 / M_2 = 25$)
+Increasing the mass ratio to $M_1/M_2 = 25$—just above the analytical threshold of $\frac{1}{2}(25 + 3\sqrt{69}) \approx 24.96$—confirms the stabilizing effect of the Coriolis force. Perturbed test particles at $L_4$ and $L_5$ remain stably confined near equilibrium for the entire simulation, spanning **more than 50,000 orbits** of the primary bodies:
 
-[4]: H. Rein and S.-F. Liu, *REBOUND: an open-source multi-purpose N-body code for collisional dynamics* A&A, 537 (2012) A128, https://doi.org/10.1051/0004-6361/201118085
+| Perturbed $L_4$ ($M_1/M_2 = 25$) | Perturbed $L_5$ ($M_1/M_2 = 25$) |
+| :---: | :---: |
+| ![Perturbed L4 Heavy Dynamics](plots/l4_heavy.gif) | ![Perturbed L5 Heavy Dynamics](plots/l5_heavy.gif) |
 
-[5]: H. Rein, D.S. Spiegel, *ias15: a fast, adaptive, high-order integrator for gravitational dynamics, accurate to machine precision over a billion orbits*, Monthly Notices of the Royal Astronomical Society, Volume 446, Issue 2, 11 January 2015, Pages 1424–1437, https://doi.org/10.1093/mnras/stu2164
+---
 
-[6]: Harris, C.R., Millman, K.J., van der Walt, S.J. et al. Array programming with NumPy. Nature 585, 357–362 (2020). DOI: 10.1038/s41586-020-2649-2.
+## References
 
-[7]: P. Virtanen, et al., (2020) SciPy 1.0: Fundamental Algorithms for Scientific Computing in Python. Nature Methods, 17(3), 261-272. 10.1038/s41592-019-0686-2.
-
-[8]: J. D. Hunter, "Matplotlib: A 2D Graphics Environment", Computing in Science & Engineering, vol. 9, no. 3, pp. 90-95, 2007
-
-[9]: Waskom, M. L., (2021). seaborn: statistical data visualization. Journal of Open Source Software, 6(60), 3021, https://doi.org/10.21105/joss.03021
+1. N. J. Cornish, *The Lagrange Points*, NASA Technical Document, https://science.nasa.gov/wp-content/uploads/2023/07/3322_lagrange.pdf
+2. J. Petersen, *L2 Station Keeping Maneuver Strategy for the James Webb Space Telescope*, Preprint, https://ntrs.nasa.gov/api/citations/20190028877/downloads/20190028877.pdf
+3. C. E. Roberts, *Long Term Missions at the Sun-Earth Libration Point L1: ACE, SOHO, and WIND*, AAS 11-485, https://ntrs.nasa.gov/api/citations/20110022484/downloads/20110022484.pdf
+4. H. Rein and S.-F. Liu, "REBOUND: an open-source multi-purpose N-body code for collisional dynamics," *Astronomy & Astrophysics*, vol. 537, A128, 2012, https://doi.org/10.1051/0004-6361/201118085
+5. H. Rein and D. S. Spiegel, "IAS15: a fast, adaptive, high-order integrator for gravitational dynamics, accurate to machine precision over a billion orbits," *Monthly Notices of the Royal Astronomical Society*, vol. 446, no. 2, pp. 1424–1437, 2015, https://doi.org/10.1093/mnras/stu2164
+6. C. R. Harris, K. J. Millman, S. J. van der Walt, et al., "Array programming with NumPy," *Nature*, vol. 585, pp. 357–362, 2020, https://doi.org/10.1038/s41586-020-2649-2
+7. P. Virtanen, et al., "SciPy 1.0: Fundamental Algorithms for Scientific Computing in Python," *Nature Methods*, vol. 17, no. 3, pp. 261–272, 2020, https://doi.org/10.1038/s41592-019-0686-2
+8. J. D. Hunter, "Matplotlib: A 2D Graphics Environment," *Computing in Science & Engineering*, vol. 9, no. 3, pp. 90–95, 2007.
+9. M. L. Waskom, "seaborn: statistical data visualization," *Journal of Open Source Software*, vol. 6, no. 60, 3021, 2021, https://doi.org/10.21105/joss.03021
