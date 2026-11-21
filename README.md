@@ -2,6 +2,8 @@
 
 An analytical and numerical exploration of the circular restricted three-body problem, focusing on the locations, linear stability, and perturbed $N$-body dynamics of the five Lagrange points ($L_1$–$L_5$).
 
+> For the full formal writeup, see [`lagrange_points.pdf`](lagrange_points.pdf).
+
 ## Overview
 
 In the circular restricted three-body problem, a massless test particle moves under the gravitational influence of two massive primary bodies ($M_1$ and $M_2$) orbiting their common center of mass. While generic trajectories are chaotic, five stationary equilibrium configurations—the **Lagrange points**—exist in the co-rotating reference frame where gravitational and centrifugal forces balance exactly [1].
