@@ -106,7 +106,7 @@ $$
 L_4: \begin{pmatrix} \left(\frac{R}{2} (\beta-\alpha)\right) \\ \frac{\sqrt{3}}{2}R \end{pmatrix}
 $$
 $$
-L_4: \begin{pmatrix} \left(\frac{R}{2} (\beta-\alpha)\right) \\ -\frac{\sqrt{3}}{2}R \end{pmatrix}
+L_5: \begin{pmatrix} \left(\frac{R}{2} (\beta-\alpha)\right) \\ -\frac{\sqrt{3}}{2}R \end{pmatrix}
 $$
 
 Note that $L_4$ and $L_5$ are exact, not subject to the same approximation used to find the first three Lagrange points.
@@ -138,7 +138,7 @@ $$
 
 In the following sections, the second derivatives will be evaluated at $\vec{r} = (x_i, y_i)$. 
 
-The general soluition for the perturbation $\xi (\delta x, \delta y, \delta v_x, \delta v_y )$ is a linear combination of eigenmodes:
+The general soluition for the perturbation $\xi (\delta x, \delta y, \delta v_x, \delta v_y )^T$ is a linear combination of eigenmodes:
 
 $$
 \xi(t) = \sum^4_{k=1}c_ke^{\lambda_kt}.
@@ -239,7 +239,7 @@ When this stability condition is met, the $L_4$ and $L_5$ points yeild stable or
 
 ### Numeric Stability
 
-Using the REBOUND N-body code [5] (integrated using IAS15, a 15th order Gauss-Radu integrator [6]) and the same parameters used to generate figures 1-3, we can simulate what happends if we place a test mass at each of the Lagrange points, and enact a small randomized perturbation $<0.1$ on their x and y positions.
+Using the REBOUND N-body code [4] (integrated using IAS15, a 15th order Gauss-Radu integrator [5]) and the same parameters used to generate figures 1-3, we can simulate what happends if we place a test mass at each of the Lagrange points, and enact a small randomized perturbation $<1e-4$ on their x and y positions.
 
 Figures 4-8 are example gifs showing motion of test particles located at each of the Lagrange points after a small perturbation in their position for a mass ratio $\frac{M_1}{M_2}=10$
 
@@ -275,14 +275,14 @@ As we can see, the particles remain stably in place for the duration of the simu
 
 [3]: C.E Roberts, *Long Term Missions at the Sun-Earth Liberation Point L1: ACE, SOHO, and WIND*, AAS 11-485,https://ntrs.nasa.gov/api/citations/20110022484/downloads/20110022484.pdf 
 
-[5]: H. Rein and S.-F. Liu, *REBOUND: an open-source multi-purpose N-body code for collisional dynamics* A&A, 537 (2012) A128, https://doi.org/10.1051/0004-6361/201118085
+[4]: H. Rein and S.-F. Liu, *REBOUND: an open-source multi-purpose N-body code for collisional dynamics* A&A, 537 (2012) A128, https://doi.org/10.1051/0004-6361/201118085
 
-[6]: H. Rein, D.S. Spiegel, *ias15: a fast, adaptive, high-order integrator for gravitational dynamics, accurate to machine precision over a billion orbits*, Monthly Notices of the Royal Astronomical Society, Volume 446, Issue 2, 11 January 2015, Pages 1424–1437, https://doi.org/10.1093/mnras/stu2164
+[5]: H. Rein, D.S. Spiegel, *ias15: a fast, adaptive, high-order integrator for gravitational dynamics, accurate to machine precision over a billion orbits*, Monthly Notices of the Royal Astronomical Society, Volume 446, Issue 2, 11 January 2015, Pages 1424–1437, https://doi.org/10.1093/mnras/stu2164
 
-[7]: Harris, C.R., Millman, K.J., van der Walt, S.J. et al. Array programming with NumPy. Nature 585, 357–362 (2020). DOI: 10.1038/s41586-020-2649-2.
+[6]: Harris, C.R., Millman, K.J., van der Walt, S.J. et al. Array programming with NumPy. Nature 585, 357–362 (2020). DOI: 10.1038/s41586-020-2649-2.
 
-[8]: P. Virtanen, et al., (2020) SciPy 1.0: Fundamental Algorithms for Scientific Computing in Python. Nature Methods, 17(3), 261-272. 10.1038/s41592-019-0686-2.
+[7]: P. Virtanen, et al., (2020) SciPy 1.0: Fundamental Algorithms for Scientific Computing in Python. Nature Methods, 17(3), 261-272. 10.1038/s41592-019-0686-2.
 
-[9]: J. D. Hunter, "Matplotlib: A 2D Graphics Environment", Computing in Science & Engineering, vol. 9, no. 3, pp. 90-95, 2007
+[8]: J. D. Hunter, "Matplotlib: A 2D Graphics Environment", Computing in Science & Engineering, vol. 9, no. 3, pp. 90-95, 2007
 
-[10]: Waskom, M. L., (2021). seaborn: statistical data visualization. Journal of Open Source Software, 6(60), 3021, https://doi.org/10.21105/joss.03021
+[9]: Waskom, M. L., (2021). seaborn: statistical data visualization. Journal of Open Source Software, 6(60), 3021, https://doi.org/10.21105/joss.03021
