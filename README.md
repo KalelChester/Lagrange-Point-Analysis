@@ -2,7 +2,7 @@
 
 An analytical and numerical exploration of the circular restricted three-body problem, focusing on the locations, linear stability, and perturbed $N$-body dynamics of the five Lagrange points ($L_1$–$L_5$).
 
-> For the full formal writeup, see [`lagrange_points.pdf`](lagrange_points.pdf).
+> For the full formal writeup, see [`lagrange_points.pdf`](writeup/lagrange_points.pdf).
 
 ## Overview
 
